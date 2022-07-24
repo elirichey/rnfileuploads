@@ -52,7 +52,7 @@ function App(props) {
         contentInsetAdjustmentBehavior="automatic"
         style={styles.content}>
         <View style={styles.preview}>
-          <Text>Uploader</Text>
+          <Text>Uploader Content</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
