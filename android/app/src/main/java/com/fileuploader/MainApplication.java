@@ -7,11 +7,20 @@ import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.config.ReactFeatureFlags;
+import com.facebook.react.config.ReactFeatureFlags; 
 import com.facebook.soloader.SoLoader;
 import com.fileuploader.newarchitecture.MainApplicationReactNativeHost;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+// SVG 
+import com.horcrux.svg.SvgPackage;
+// File System
+import com.rnfs.RNFSPackage;
+// Required by react-native-orientation-locker
+import org.wonday.orientation.OrientationActivityLifecycle;
+// Required by @react-native-community/cameraroll
+import com.reactnativecommunity.cameraroll.CameraRollPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -56,6 +65,9 @@ public class MainApplication extends Application implements ReactApplication {
     ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+
+    // Required by react-native-orientation-locker
+    registerActivityLifecycleCallbacks(OrientationActivityLifecycle.getInstance());
   }
 
   /**
