@@ -6,7 +6,7 @@ const uploadFile = async (http, headers, payload, setPercentUploaded) => {
   const {client} = http;
   switch (client) {
     case 'Axios':
-      return '';
+      return () => axiosUpload(http, headers, payload, setPercentUploaded);
     case 'Background':
       return () => backgroundUpload(http, headers, payload, setPercentUploaded);
     case 'RNFS':
@@ -138,7 +138,58 @@ const rnfsUpload = (http, headers, payload, setPercentUploaded) => {
     });
 };
 
-// const axiosUpload = await () => {}
+const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
+  const controller = new AbortController();
+
+  // Prop Values
+  const {url, reqType, route, field} = http;
+  const {token} = headers;
+  const {name, uri, type} = payload;
+
+  const routePath = url + route;
+  const headerObj = token
+    ? {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'content-type': 'multipart/form-data',
+      }
+    : {
+        Accept: 'application/json',
+        'content-type': 'multipart/form-data',
+      };
+
+  const file = {
+    uri: uri,
+    name: name,
+    type: type,
+  };
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // field: 'file', // this must match FileInterceptor api value in uploader.controller.ts
+
+  return await axios({
+    url: routePath,
+    method: reqType,
+    headers: headerObj,
+    data: formData,
+    onUploadProgress: ({total, loaded}) => {
+      const progress = (loaded / total) * 100;
+      const percentage = Math.round(progress);
+      console.log(`Axios Upload: Progress - ${percentage}%`);
+      setPercentUploaded({payload, progress: percentage});
+    },
+  })
+    .then(res => {
+      console.log('RNFS Upload: Success -', res);
+      return res;
+    })
+    .catch(error => {
+      console.log('RNFS Upload: Error -', error);
+      return error;
+    });
+};
 
 const UploadsHTTP = {
   uploadFile,

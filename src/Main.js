@@ -4,6 +4,7 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
+  View,
   Text,
 } from 'react-native';
 import {connect} from 'react-redux';
@@ -50,7 +51,9 @@ function App(props) {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.content}>
-        <Text>Uploader</Text>
+        <View style={styles.preview}>
+          <Text>Uploader</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -63,9 +66,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  preview: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
 });
 
