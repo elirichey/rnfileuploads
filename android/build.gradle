@@ -7,7 +7,7 @@ buildscript {
         buildToolsVersion = "31.0.0"
         minSdkVersion = 21
         compileSdkVersion = 31
-        targetSdkVersion = 31
+        targetSdkVersion = 31 
 
         if (System.properties['os.arch'] == "aarch64") {
             // For M1 Users we need to use the NDK 24 which added support for aarch64
@@ -32,6 +32,12 @@ buildscript {
 
 allprojects {
     repositories {
+        // ADD THIS - Image Crop Picker
+        maven { url 'https://maven.google.com' }
+
+        // ADD THIS - Image Crop Picker - Is Below
+        // maven { url "https://www.jitpack.io" }
+
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url("$rootDir/../node_modules/react-native/android")

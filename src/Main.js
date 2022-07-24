@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -6,6 +6,8 @@ import {
   StyleSheet,
   View,
   Text,
+  TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -22,6 +24,9 @@ import {
   clearUploadQueue,
   updateUploadQueueProgress,
 } from './redux/actions/uploads';
+import Orientation from 'react-native-orientation-locker';
+// import ImagePicker from 'react-native-image-crop-picker';
+import DocumentPicker from 'react-native-document-picker';
 import UploadsHTTP from './utilities/http/uploads';
 
 function App(props) {
@@ -42,7 +47,22 @@ function App(props) {
     updateUploadQueueProgress,
   } = props;
 
+  useEffect(() => {
+    Orientation.lockToPortrait();
+    return () => null;
+  }, []);
+
   const [selectedFile, setSelectedFile] = useState(null);
+  const openPicker = async () => {
+    try {
+      const res = await DocumentPicker.pickSingle();
+      const {name, size, type, uri} = res;
+      setSelectedFile(res);
+      console.log('Selected', res);
+    } catch (e) {
+      console.log('Caught Error', e);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.main}>
@@ -52,7 +72,9 @@ function App(props) {
         contentInsetAdjustmentBehavior="automatic"
         style={styles.content}>
         <View style={styles.preview}>
-          <Text>Uploader Content</Text>
+          <TouchableOpacity onPress={openPicker} style={styles.open_btn}>
+            <Text style={styles.txt}>Open Picker</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -70,8 +92,20 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
+    height: Dimensions.get('screen').width,
+    backgroundColor: 'red',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  open_btn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+    width: 160,
+    backgroundColor: '#00DD00',
+  },
+  txt: {
+    color: '#FFF',
   },
 });
 
