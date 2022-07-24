@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, Text, TextInput, Platform} from 'react-native';
+import {StyleSheet, View, Text, TextInput} from 'react-native';
 
 export default function Input(props) {
   const {
@@ -12,8 +12,6 @@ export default function Input(props) {
     autoCorrect,
     autoCapitalize,
     returnKeyType,
-    error,
-    errorMessage,
     editable,
   } = props;
 
@@ -27,15 +25,7 @@ export default function Input(props) {
             ? [styles.input_title_container, styles.opacity_low]
             : styles.input_title_container
         }>
-        <Text style={!error ? styles.title_txt : styles.error_txt}>
-          {label}
-        </Text>
-
-        {errorMessage ? (
-          <Text style={[styles.title_txt, styles.opacity_low, styles.ml10]}>
-            {errorMessage}
-          </Text>
-        ) : null}
+        <Text style={styles.title_txt}>{label}</Text>
       </View>
 
       <TextInput
@@ -63,7 +53,6 @@ const stylesWithProps = props => {
   return StyleSheet.create({
     input_container: {
       flex: 1,
-      paddingTop: 15,
       borderColor: '#DDD',
       borderBottomWidth: 1,
       position: 'relative',
@@ -72,22 +61,14 @@ const stylesWithProps = props => {
       flexDirection: 'row',
     },
     title_txt: {
-      height: Platform.OS === 'ios' ? 12 : 16,
-      marginBottom: Platform.OS === 'ios' ? 5 : 0,
+      fontWeight: '500',
+      letterSpacing: 1,
     },
     opacity_low: {
       opacity: 0.5,
     },
-    ml10: {
-      marginLeft: 10,
-    },
-    error_txt: {
-      height: Platform.OS === 'ios' ? 12 : 16,
-      color: '#DD0000',
-      marginBottom: Platform.OS === 'ios' ? 5 : 0,
-    },
     txt_input: {
-      height: Platform.OS === 'ios' ? 32 : null,
+      height: 40,
       overflow: 'hidden',
     },
   });

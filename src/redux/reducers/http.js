@@ -5,14 +5,16 @@ import {
   SET_HTTP_ROUTE,
   SET_HTTP_REQ_TYPE,
   SET_HTTP_FIELD_NAME,
+  SET_HTTP_HEADER_TOKEN,
 } from '../actions/http';
 
 const initialState = {
   client: 'Background Uploader', // 'Axios' || 'Background Uploader' || 'RNFS'
   url: '',
   route: '',
-  reqType: 'PUT', // 'PUT' || 'POST'
+  reqType: '', // 'PUT' || 'POST'
   fieldName: '',
+  headerToken: '',
 };
 
 export default function http(state = initialState, action) {
@@ -51,6 +53,12 @@ export default function http(state = initialState, action) {
       return {
         ...state,
         fieldName: action.data,
+      };
+
+    case SET_HTTP_HEADER_TOKEN:
+      return {
+        ...state,
+        headerToken: action.data,
       };
 
     default:

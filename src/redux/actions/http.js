@@ -7,6 +7,7 @@ export const SET_HTTP_URL = 'SET_HTTP_URL';
 export const SET_HTTP_ROUTE = 'SET_HTTP_ROUTE';
 export const SET_HTTP_REQ_TYPE = 'SET_HTTP_REQ_TYPE';
 export const SET_HTTP_FIELD_NAME = 'SET_HTTP_FIELD_NAME';
+export const SET_HTTP_HEADER_TOKEN = 'SET_HTTP_HEADER_TOKEN';
 
 // General
 
@@ -49,6 +50,13 @@ export function setHttpReqType(data) {
 export function setHttpFieldName(data) {
   return {
     type: SET_HTTP_FIELD_NAME,
+    data: data,
+  };
+}
+
+export function setHttpHeaderToken(data) {
+  return {
+    type: SET_HTTP_HEADER_TOKEN,
     data: data,
   };
 }

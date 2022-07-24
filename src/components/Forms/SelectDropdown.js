@@ -7,12 +7,6 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
-import {
-  brandFonts,
-  fontSize,
-  determineTheme,
-  brandColors,
-} from '../../config/theme';
 
 export default function SelectDropdown(props) {
   const {
@@ -21,34 +15,19 @@ export default function SelectDropdown(props) {
     onChange,
     placeholder,
     options,
-    darkMode,
-    error,
-    errorMessage,
     editable,
     showOptions,
     setShowOptions,
+    theme,
   } = props;
 
-  const styles = stylesWithProps();
+  const styles = stylesWithProps(theme);
 
   return (
     <View style={styles.base_container}>
       <View style={styles.input_container}>
-        <View
-          style={
-            !editable
-              ? [styles.input_title_container, styles.opacity_low]
-              : styles.input_title_container
-          }>
-          <Text style={!error ? styles.title_txt : styles.error_txt}>
-            {label}
-          </Text>
-
-          {errorMessage ? (
-            <Text style={[styles.title_txt, styles.opacity_low, styles.ml10]}>
-              {errorMessage}
-            </Text>
-          ) : null}
+        <View style={styles.input_title_container}>
+          <Text style={styles.title_txt}>{label}</Text>
         </View>
 
         <View style={styles.main_container}>
@@ -80,21 +59,7 @@ export default function SelectDropdown(props) {
               </TouchableOpacity>
 
               {showOptions ? (
-                <View
-                  style={[
-                    styles.list_container,
-                    {
-                      shadowColor: darkMode
-                        ? 'rgba(255, 255, 255, 0.43)'
-                        : 'rgba(0, 0, 0, 0.43)',
-                      shadowOffset: {
-                        width: 10,
-                        height: 10,
-                      },
-                      shadowRadius: 10,
-                    },
-                  ]}
-                  elevation={5}>
+                <View style={[styles.list_container]} elevation={5}>
                   {options.map((option, i) => {
                     return (
                       <TouchableOpacity
@@ -110,7 +75,14 @@ export default function SelectDropdown(props) {
                           );
                           setShowOptions(false);
                         }}>
-                        <Text style={styles.select_txt}>{option}</Text>
+                        <Text
+                          style={
+                            value === option
+                              ? [styles.select_txt, styles.txt_white]
+                              : [styles.select_txt]
+                          }>
+                          {option}
+                        </Text>
                       </TouchableOpacity>
                     );
                   })}
@@ -139,29 +111,20 @@ const stylesWithProps = props => {
       flex: 1,
     },
     input_container: {
-      paddingTop: 15,
       borderColor: '#DDD',
       borderBottomWidth: 1,
       position: 'relative',
-      zIndex: 5,
     },
     input_title_container: {
       flexDirection: 'row',
+      marginBottom: 5,
     },
     title_txt: {
-      height: Platform.OS === 'ios' ? 12 : 16,
-      marginBottom: 5,
+      fontWeight: '500',
+      letterSpacing: 1,
     },
     opacity_low: {
       opacity: 0.5,
-    },
-    ml10: {
-      marginLeft: 10,
-    },
-    error_txt: {
-      height: Platform.OS === 'ios' ? 12 : 16,
-      color: '#DD0000',
-      marginBottom: 5,
     },
     main_container: {
       position: 'relative',
@@ -178,7 +141,7 @@ const stylesWithProps = props => {
       width: Dimensions.get('screen').width / 2 - 30,
       height: Platform.OS === 'ios' ? 44 : 44,
       justifyContent: 'center',
-      backgroundColor: '#FFF',
+      backgroundColor: '#EEE',
       borderColor: '#DDD',
       borderBottomWidth: 1,
       overflow: 'hidden',
@@ -188,7 +151,7 @@ const stylesWithProps = props => {
       width: Dimensions.get('screen').width / 2 - 30,
       height: Platform.OS === 'ios' ? 44 : 44,
       justifyContent: 'center',
-      backgroundColor: '#0F0',
+      backgroundColor: props ? '#0D0' : '#00BFFF',
       borderColor: '#DDD',
       borderBottomWidth: 1,
       overflow: 'hidden',
@@ -199,12 +162,20 @@ const stylesWithProps = props => {
       opacity: 0.5,
     },
     select_txt: {},
+    txt_white: {
+      color: '#FFF',
+    },
     list_container: {
       flex: 1,
+      backgroundColor: '#FFF',
       position: 'absolute',
       top: Platform.OS === 'ios' ? 33 : 44,
-      backgroundColor: '#DDD',
-      zIndex: 5,
+      shadowColor: 'rgba(0, 0, 0, 0.43)',
+      shadowOffset: {
+        width: 10,
+        height: 10,
+      },
+      shadowRadius: 10,
     },
 
     selector_indicator: {
