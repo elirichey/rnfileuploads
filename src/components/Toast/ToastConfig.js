@@ -19,11 +19,10 @@ const ToastConfig = {
     const styles = stylesWithProps();
     return (
       <View style={[styles.custom_container, styles.error_border]}>
-        {text2 && text2.code ? (
-          <Text style={[styles.title_txt, styles.theme_txt]}>{text2.code}</Text>
-        ) : null}
-        {text2 && text2.message ? (
-          <Text style={styles.body_txt}>{text2.message.toUpperCase()}</Text>
+        {text2 ? (
+          <Text style={[styles.title_txt, styles.theme_txt]}>
+            {text2.toUpperCase()}
+          </Text>
         ) : null}
       </View>
     );

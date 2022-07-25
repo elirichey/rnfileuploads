@@ -55,12 +55,12 @@ const backgroundUpload = async (http, headers, payload, setPercentUploaded) => {
         console.log('Background Upload: Starting');
         Upload.addListener('progress', uploadId, res => {
           console.log(`Background Upload: Progress - ${res.progress}%`);
-          setPercentUploaded({payload, progress: res.progress});
+          setPercentUploaded(res.progress);
         });
         Upload.addListener('error', uploadId, res => {
           console.log(`Background Upload: Error - ${res.error}`);
           controller.abort();
-          return resolve(res);
+          return resolve(res.error);
         });
         Upload.addListener('cancelled', uploadId, res => {
           console.log(`Background Upload: Cancelled - ${uploadId}`, res);
@@ -110,7 +110,7 @@ const rnfsUpload = (http, headers, payload, setPercentUploaded) => {
       (totalBytesSent / totalBytesExpectedToSend) * 100,
     );
     console.log(`RNFS Upload: Progress - ${percentUploaded}%`);
-    setPercentUploaded({payload, progress: percentUploaded});
+    setPercentUploaded(percentUploaded);
   };
 
   RNFS.uploadFiles({
@@ -181,7 +181,7 @@ const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
       const progress = (loaded / total) * 100;
       const percentage = Math.round(progress);
       console.log(`Axios Upload: Progress - ${percentage}%`);
-      setPercentUploaded({payload, progress: percentage});
+      setPercentUploaded(percentage);
     },
   })
     .then(res => {
@@ -192,11 +192,15 @@ const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
         return {status, data};
       } else {
         console.log('Axios Upload: Error -', res);
+        return res.status;
       }
     })
     .catch(error => {
-      console.log('Axios Upload: Catch Error -', error);
-      return error;
+      const {status} = error.response;
+      console.log('Axios Upload: Catch Error -', error.response);
+      if (status === 0) {
+        return `Connection Error - Are you sure the route is correct?`;
+      } else return status;
     });
 };
 

@@ -31,13 +31,16 @@ import ToastConfig, {
   toastError,
 } from './components/Toast/ToastConfig';
 import UploadsHTTP from './utilities/http/uploads';
+import validateUploadFields from './utilities/validations/validate-upload-fields';
 // Components
 import FileUpload from './components/Forms/FileUpload';
 import Form from './components/Form';
+import Loader from './components/Loader/Loader';
 
 function App(props) {
   // Redux
-  const {client, url, route, reqType, headerToken, fieldName} = props;
+  const {client, url, route, reqType, headerToken, fieldName, uploadProgress} =
+    props;
   // Actions
   const {
     // resetHTTPReducer, setHttpClient, setHttpUrl, setHttpRoute, setHttpReqType, setHttpFieldName, setHttpHeaderToken
@@ -58,15 +61,11 @@ function App(props) {
   const openPicker = async () => {
     if (useImagePicker) {
       return ImagePicker.openPicker({})
-        .then(res => {
-          console.log('Selected', res);
-          setSelectedFile(res);
-        })
+        .then(res => setSelectedFile(res))
         .catch(e => null);
     } else {
       try {
         const res = await DocumentPicker.pickSingle();
-        console.log('Selected', res); // const {name, size, type, uri} = res;
         return setSelectedFile(res);
       } catch (e) {
         return console.log('Caught Error', e);
@@ -123,21 +122,7 @@ function App(props) {
   const submitUpload = async () => {
     const isIos = Platform.OS === 'ios';
 
-    // Image Picker Response:
-    // - iOS: { creationDate, cropRect, data, duration, exif, filename,
-    //          height, localIdentifier, mime, modificationDate, path,
-    //          size, sourceURL, width}
-    // - Android: {}
-    //        more
-    //
-    // Document Picker Response:
-    // - iOS: {}
-    // - Android: {}
-
-    // Validate the file payload
     let fileErrors = [];
-    console.log('selectedFileselectedFileselectedFile', selectedFile);
-
     let payload = {};
     if (useImagePicker) {
       if (isIos) {
@@ -164,6 +149,7 @@ function App(props) {
           : fileErrors.push('type');
       }
     } else {
+      // Android Payload - iOS Not Tested yet
       selectedFile
         ? (payload.name = selectedFile.name)
         : fileErrors.push('name');
@@ -177,12 +163,18 @@ function App(props) {
     }
 
     // Validate the HTTP credentials
-    // submitDisabled
-    //
-    //
-    //
-    //
-    // Then...
+    const http = {
+      client: client.trim(),
+      url: url.trim(),
+      route: route.trim(),
+      reqType,
+      field: fieldName,
+    };
+    const fieldErrors = await validateUploadFields(http);
+    if (fieldErrors.length > 0) {
+      return Alert.alert(`Field Errors: ${JSON.stringify(fieldErrors)}`);
+    }
+    console.log('FieldsValidated', fieldErrors);
 
     setLoading(true);
     const uploadItemId = new Date().getTime();
@@ -195,22 +187,23 @@ function App(props) {
     setCurrentUpload(uploadItem);
 
     try {
-      const res = await uploadFile(payload);
-      setUploadProgress(0);
-      setLoading(false);
-      // if successful...
-      // setCurrentUpload(null)
+      const res = await uploadFile(http, payload);
+      // console.log('Upload Done', res);
+      setTimeout(() => {
+        setUploadProgress(0);
+        setLoading(false);
+      }, 1000);
       return res;
     } catch (e) {
       console.log('Upload Media Caught', e);
-      setUploadProgress(0);
-      setLoading(false);
-      return e;
+      setTimeout(() => {
+        setUploadProgress(0);
+        setLoading(false);
+      }, 1000);
     }
   };
 
-  const uploadFile = async payload => {
-    const http = {client, url, route, reqType, field: fieldName};
+  const uploadFile = async (http, payload) => {
     const headers = {token: headerToken};
 
     const res = await UploadsHTTP.uploadFile(
@@ -220,6 +213,8 @@ function App(props) {
       setUploadProgress,
     );
 
+    console.log('Response', res);
+
     if (res) {
       if (client === 'Background Uploader') {
         const code = res.responseCode;
@@ -227,23 +222,20 @@ function App(props) {
           Toast.show(toastUploadComplete('Background Uploader'));
           return res;
         } else {
-          const {data} = res.response;
-          Toast.show(toastError(data));
-          console.log('Upload Error: ', res);
+          Toast.show(toastError(res));
+          console.log('Background_Upload_Error: ', res);
           return res;
         }
       }
     }
     if (client === 'Axios') {
-      console.log('AxiosAxiosAxiosAxios', res.status);
       const code = res.status;
       if (code === 200 || code === 201 || code === 202) {
         Toast.show(toastUploadComplete('Axios'));
         return res;
       } else {
-        const {data} = res.response;
-        Toast.show(toastError(data));
-        console.log('Upload Error: ', res);
+        Toast.show(toastError(res));
+        console.log('Axios_Upload_Error: ', res);
         return res;
       }
     }
@@ -256,7 +248,7 @@ function App(props) {
       } else {
         const {data} = res.response;
         Toast.show(toastError(data));
-        console.log('Upload Error: ', res);
+        console.log('RNFS_Upload_Error: ', res);
         return res;
       } */
     }
@@ -298,6 +290,8 @@ function App(props) {
           submitDisabled={!selectedFile || loading}
         />
       </ScrollView>
+
+      {loading ? <Loader progress={uploadProgress} /> : null}
 
       <Toast config={ToastConfig} />
     </SafeAreaView>

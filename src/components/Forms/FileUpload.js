@@ -55,7 +55,9 @@ export default function FileUpload(props) {
               <Text style={styles.file_txt}>Name: {name}</Text>
               <Text style={styles.file_txt}>Size: {size}</Text>
               <Text style={styles.file_txt}>Type: {type}</Text>
-              <Text style={styles.file_txt}>URI: {uri ? 'True' : 'False'}</Text>
+              <Text style={styles.file_txt}>
+                Has URI: {uri ? 'True' : 'False'}
+              </Text>
             </View>
           </>
         ) : (
