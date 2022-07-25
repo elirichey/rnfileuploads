@@ -40,16 +40,22 @@ export default function FileUpload(props) {
         onPress={onPress}
         style={uri ? styles.input_file : styles.add_file_btn}>
         {uri ? (
-          <ImageBackground
-            style={styles.cover_img}
-            source={uri ? {uri: uri} : null}
-            defaultSource={require('../../assets/images/placeholder.jpg')}>
-            {useImagePicker ? (
-              <Text style={{fontSize: 23, color: 'pink'}}>{name}</Text>
-            ) : (
-              <Text style={{fontSize: 23, color: 'pink'}}>{name}</Text>
-            )}
-          </ImageBackground>
+          <>
+            <Image
+              style={styles.cover_img}
+              source={uri ? {uri: uri} : null}
+              defaultSource={require('../../assets/images/placeholder.jpg')}
+              resizeMethod="resize"
+              resizeMode="contain"
+            />
+
+            <View style={styles.file_overview_container}>
+              <Text style={styles.file_txt}>Name: {name}</Text>
+              <Text style={styles.file_txt}>Size: {size}</Text>
+              <Text style={styles.file_txt}>Type: {type}</Text>
+              <Text style={styles.file_txt}>URI: {uri ? 'True' : 'False'}</Text>
+            </View>
+          </>
         ) : (
           <>
             <Text
@@ -83,16 +89,18 @@ const stylesWithProps = props => {
     input_file: {
       height: winSize.width - 20,
       width: winSize.width - 20,
+      position: 'relative',
       backgroundColor: '#FFF',
       borderWidth: 1,
       borderColor: '#DDD',
-      overflow: 'hidden',
-      alignItems: 'center',
-      justifyContent: 'center',
+      // overflow: 'hidden',
+      // alignItems: 'center',
+      // justifyContent: 'center',
     },
     add_file_btn: {
       height: winSize.width - 30,
       width: winSize.width - 30,
+      position: 'relative',
       backgroundColor: '#EEE',
       overflow: 'hidden',
       alignItems: 'center',
@@ -100,11 +108,25 @@ const stylesWithProps = props => {
     },
     cover_img: {
       flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: winSize.width - 22,
-      width: winSize.width - 22,
-      overflow: 'hidden',
+      maxWidth: winSize.width - 22,
+      backgroundColor: '#EEE',
+      // alignItems: 'center',
+      // justifyContent: 'center',
+      // height: winSize.width - 22,
+      // width: winSize.width - 22,
+      // overflow: 'hidden',
+    },
+    file_overview_container: {
+      width: '100%',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+    },
+    file_txt: {
+      color: 'green',
     },
     btn_txt: {
       letterSpacing: 1,

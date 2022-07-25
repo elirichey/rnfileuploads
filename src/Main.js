@@ -197,10 +197,10 @@ function App(props) {
         setUploadProgress,
       );
 
-      console.log('Upload Response: ', res);
+      console.log('Main.js UploadsHTTP.uploadFile - Response: ', res);
 
       const code = res.responseCode;
-      console.log('Response Code: ', code);
+      // console.log('Response Code: ', code);
 
       if (code === 200 || code === 201 || code === 202) {
         Toast.show(toastCreated('Upload'));
@@ -208,7 +208,7 @@ function App(props) {
       } else {
         const {data} = res.response;
         Toast.show(toastError(data));
-        console.log('Upload Error: ', data);
+        console.log('Upload Error: ', res);
         return res;
       }
     } catch (e) {

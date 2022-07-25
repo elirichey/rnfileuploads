@@ -142,6 +142,7 @@ export default function Form(props) {
           autoCorrect={false}
           autoCapitalize={false}
           returnKeyType="next"
+          multiline={true}
           editable={true}
         />
       </View>

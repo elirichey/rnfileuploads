@@ -12,6 +12,7 @@ export default function Input(props) {
     autoCorrect,
     autoCapitalize,
     returnKeyType,
+    multiline,
     editable,
   } = props;
 
@@ -43,6 +44,7 @@ export default function Input(props) {
         autoCapitalize={autoCapitalize}
         returnKeyType={returnKeyType}
         secureTextEntry={false}
+        multiline={multiline}
         editable={editable}
       />
     </View>

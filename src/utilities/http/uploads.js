@@ -3,16 +3,15 @@ import Upload from 'react-native-background-upload';
 import RNFS from 'react-native-fs';
 
 const uploadFile = async (http, headers, payload, setPercentUploaded) => {
-  const {client} = http;
-  switch (client) {
+  switch (http.client) {
     case 'Axios':
-      return () => axiosUpload(http, headers, payload, setPercentUploaded);
+      return axiosUpload(http, headers, payload, setPercentUploaded);
     case 'Background':
-      return () => backgroundUpload(http, headers, payload, setPercentUploaded);
+      return backgroundUpload(http, headers, payload, setPercentUploaded);
     case 'RNFS':
-      return () => rnfsUpload(http, headers, payload, setPercentUploaded);
+      return rnfsUpload(http, headers, payload, setPercentUploaded);
     default:
-      return () => backgroundUpload(http, headers, payload, setPercentUploaded);
+      return backgroundUpload(http, headers, payload, setPercentUploaded);
   }
 };
 
@@ -138,7 +137,7 @@ const rnfsUpload = (http, headers, payload, setPercentUploaded) => {
     });
 };
 
-const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
+const axiosUpload = (http, headers, payload, setPercentUploaded) => {
   const controller = new AbortController();
 
   // Prop Values
@@ -164,12 +163,14 @@ const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
     type: type,
   };
 
+  console.log('File Payload: ', file);
+
   const formData = new FormData();
   formData.append('file', file);
 
   // field: 'file', // this must match FileInterceptor api value in uploader.controller.ts
 
-  return await axios({
+  axios({
     url: routePath,
     method: reqType,
     headers: headerObj,
@@ -182,11 +183,15 @@ const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
     },
   })
     .then(res => {
-      console.log('RNFS Upload: Success -', res);
-      return res;
+      if (res.status === 201) {
+        console.log('Axios Upload: Success -', res.data.data);
+        return res.data;
+      } else {
+        console.log('Axios Upload: Error -', res);
+      }
     })
     .catch(error => {
-      console.log('RNFS Upload: Error -', error);
+      console.log('Axios Upload: Catch Error -', error);
       return error;
     });
 };
