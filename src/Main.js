@@ -17,14 +17,18 @@ import {
   setHttpHeaderToken,
 } from './redux/actions/http';
 import {
-  resetUploadsReducer,
-  updateUploadQueue,
-  clearUploadQueue,
-  updateUploadQueueProgress,
+  resetUploadReducer,
+  setCurrentUpload,
+  setUploadProgress,
 } from './redux/actions/uploads';
 import Orientation from 'react-native-orientation-locker';
 import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-crop-picker';
+import Toast from 'react-native-toast-message';
+import ToastConfig, {
+  toastCreated,
+  toastError,
+} from './components/Toast/ToastConfig';
 import UploadsHTTP from './utilities/http/uploads';
 // Components
 import FileUpload from './components/Forms/FileUpload';
@@ -32,15 +36,13 @@ import Form from './components/Form';
 
 function App(props) {
   // Redux
-  const {client, url, route, reqType, fieldName, uploadQueue, uploadProgress} =
-    props;
+  const {client, url, route, reqType, headerToken, fieldName} = props;
   // Actions
   const {
     // resetHTTPReducer, setHttpClient, setHttpUrl, setHttpRoute, setHttpReqType, setHttpFieldName, setHttpHeaderToken
-    resetUploadsReducer,
-    updateUploadQueue,
-    clearUploadQueue,
-    updateUploadQueueProgress,
+    resetUploadReducer,
+    setCurrentUpload,
+    setUploadProgress,
   } = props;
 
   useEffect(() => {
@@ -69,95 +71,152 @@ function App(props) {
       }
     }
   };
+  const resetFileSelection = () => {
+    const options = [
+      {text: 'Cancel', style: 'default', onPress: () => null},
+      {
+        text: 'Clear',
+        style: 'destructive',
+        onPress: () => setSelectedFile(null),
+      },
+    ];
+    Alert.alert(
+      `Clear Selected File`,
+      `Are you sure you want to reset the file?`,
+      options,
+    );
+  };
+
+  const confirmChangeModeIfFileSelected = () => {
+    if (selectedFile) {
+      const options = [
+        {text: 'Cancel', style: 'default', onPress: () => null},
+        {
+          text: 'Continue',
+          style: 'destructive',
+          onPress: () => {
+            setUseImagePicker(!useImagePicker);
+            setSelectedFile(null);
+            resetUploadReducer();
+          },
+        },
+      ];
+
+      Alert.alert(
+        `Switch File Picker`,
+        `Switching file pickers will clear your current upload`,
+        options,
+      );
+    } else {
+      setUseImagePicker(!useImagePicker);
+      setSelectedFile(null);
+      resetUploadReducer();
+    }
+  };
 
   const [showHttpClientOptions, setShowHttpClientOptions] = useState(false);
   const [showHttpReqTypeOptions, setShowHttpReqTypeOptions] = useState(false);
 
   const submitUpload = async () => {
-    let errors = [];
+    // Image Picker Response:
+    // - iOS: { creationDate, cropRect, data, duration, exif, filename,
+    //          height, localIdentifier, mime, modificationDate, path,
+    //          size, sourceURL, width}
+    // - Android: {}
+    //        more
+    //
+    // Document Picker Response:
+    // - iOS: {}
+    // - Android: {}
+
+    // Validate the file payload
+    let fileErrors = [];
     let payload = {};
-    selectedFile ? (payload.name = selectedFile.name) : errors.push('name');
-    selectedFile ? (payload.uri = selectedFile.uri) : errors.push('uri');
-    selectedFile ? (payload.type = selectedFile.type) : errors.push('type');
-    if (errors.length > 0) {
-      return Alert.alert(`Errors: ${JSON.stringify(errors)}`);
+    if (useImagePicker) {
+      selectedFile
+        ? (payload.name = selectedFile.filename)
+        : fileErrors.push('name');
+      selectedFile
+        ? (payload.uri = selectedFile.sourceURL)
+        : fileErrors.push('uri');
+      selectedFile
+        ? (payload.type = selectedFile.mime)
+        : fileErrors.push('type');
+    } else {
+      selectedFile
+        ? (payload.name = selectedFile.name)
+        : fileErrors.push('name');
+      selectedFile ? (payload.uri = selectedFile.uri) : fileErrors.push('uri');
+      selectedFile
+        ? (payload.type = selectedFile.type)
+        : fileErrors.push('type');
+    }
+    if (fileErrors.length > 0) {
+      return Alert.alert(`File Errors: ${JSON.stringify(fileErrors)}`);
     }
 
-    const queueItemId = new Date().getTime();
-    const queueItem = {
-      id: queueItemId,
+    // Validate the HTTP credentials
+    //
+    //
+    //
+    //
+    //
+    // Then...
+
+    const uploadItemId = new Date().getTime();
+    const uploadItem = {
+      id: uploadItemId,
       payload,
       status: 100,
       error: null,
     };
-    const updatedQueueArray = [...uploadQueue];
-    updatedQueueArray.push(queueItem);
-    updateUploadQueue(updatedQueueArray);
+    setCurrentUpload(uploadItem);
 
     try {
-      const res = await uploadMedia(payload, queueItem);
+      const res = await uploadFile(payload);
+      setUploadProgress(0);
+      // if successful...
+      // setCurrentUpload(null)
       return res;
     } catch (e) {
       console.log('Upload Media Caught', e);
+      setUploadProgress(0);
       return e;
     }
   };
 
-  const uploadMedia = async (eventId, payload, queueItem, accessToken) => {
-    /*
+  const uploadFile = async payload => {
+    const http = {client, url, route, reqType, field: fieldName};
+    const headers = {token: headerToken};
+
     try {
-      const res = await UploadsHTTP.uploadMedia(
-        eventId,
+      const res = await UploadsHTTP.uploadFile(
+        http,
+        headers,
         payload,
-        accessToken,
-        setFileUploaded,
+        setUploadProgress,
       );
 
-      // console.log('RESPONSE_CODE', res);
-      if (res.responseCode === 202) {
-        const newArray = [...uploadQueue];
-        newArray.filter(x => x.id !== queueItem.id);
-        updateUploadQueue(newArray);
-        removeFileUploaded(payload);
-        deleteCacheFile(payload.uri);
+      console.log('Upload Response: ', res);
+
+      const code = res.responseCode;
+      console.log('Response Code: ', code);
+
+      if (code === 200 || code === 201 || code === 202) {
+        Toast.show(toastCreated('Upload'));
         return res;
-      } else if (res.responseCode === 403) {
-        try {
-          const refresh = await refreshAccessToken();
-          if (refresh) {
-            return uploadMedia(eventId, payload, accessToken, queueItem);
-          } else logout();
-        } catch (e) {
-          console.log('Upload - Refresh Caught', e.response);
-          return e.response;
-        }
       } else {
-        // Need to test
-        const newArray = [...uploadQueue];
-        newArray.filter(x => x.id !== queueItem.id);
-        updateUploadQueue(newArray);
-        queueItem.status = res.error;
-        queueItem.error = 400;
-        newArray.push(queueItem);
-        updateUploadQueue(newArray);
-        console.log('NON-200 or 403 ERROR', res);
-        removeFileUploaded(payload);
+        const {data} = res.response;
+        Toast.show(toastError(data));
+        console.log('Upload Error: ', data);
         return res;
       }
     } catch (e) {
-      // Need to test
-      const newArray = [...uploadQueue];
-      newArray.filter(x => x.id !== queueItem.id);
-      updateUploadQueue(newArray);
-      queueItem.status = e;
-      queueItem.error = e;
-      newArray.push(queueItem);
-      updateUploadQueue(newArray);
-      console.log('CAUGHT_UPLOAD_ERROR', e);
-      removeFileUploaded(payload);
+      const {data} = e.response;
+      Toast.show(toastError(data));
+      console.log('Upload Error Caught: ', data);
       return e;
     }
-    */
   };
 
   return (
@@ -170,8 +229,8 @@ function App(props) {
         <FileUpload
           {...props}
           source={selectedFile}
-          usePicker={useImagePicker}
-          onPress={openPicker}
+          useImagePicker={useImagePicker}
+          onPress={selectedFile ? resetFileSelection : openPicker}
         />
 
         <Form
@@ -179,7 +238,7 @@ function App(props) {
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
           usePicker={useImagePicker}
-          setUsePicker={setUseImagePicker}
+          setUsePicker={confirmChangeModeIfFileSelected} // setUseImagePicker
           submitUpload={submitUpload}
           showHttpClientOptions={showHttpClientOptions}
           setShowHttpClientOptions={bool => {
@@ -193,6 +252,8 @@ function App(props) {
           }}
         />
       </ScrollView>
+
+      <Toast config={ToastConfig} />
     </SafeAreaView>
   );
 }
@@ -217,7 +278,7 @@ const mapStateToProps = state => ({
   fieldName: state.http.fieldName,
   headerToken: state.http.headerToken,
   // Uploads
-  uploadQueue: state.uploads.uploadQueue,
+  currentUpload: state.uploads.currentUpload,
   uploadProgress: state.uploads.uploadProgress,
 });
 
@@ -232,11 +293,9 @@ function mapDispatchToProps(dispatch) {
     setHttpFieldName: data => dispatch(setHttpFieldName(data)),
     setHttpHeaderToken: data => dispatch(setHttpHeaderToken(data)),
     // Uploads
-    resetUploadsReducer: () => dispatch(resetUploadsReducer()),
-    updateUploadQueue: data => dispatch(updateUploadQueue(data)),
-    clearUploadQueue: data => dispatch(clearUploadQueue(data)),
-    updateUploadQueueProgress: data =>
-      dispatch(updateUploadQueueProgress(data)),
+    resetUploadReducer: () => dispatch(resetUploadReducer()),
+    setCurrentUpload: data => dispatch(setCurrentUpload(data)),
+    setUploadProgress: data => dispatch(setUploadProgress(data)),
   };
 }
 

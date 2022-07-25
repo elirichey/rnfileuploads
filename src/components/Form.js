@@ -5,21 +5,22 @@ import SelectDropdown from './Forms/SelectDropdown';
 import SwitchInput from './Forms/SwitchInput';
 
 export default function Form(props) {
-  // Redux
+  // Redux - State
   const {
     usePicker,
-    client, // 'Axios' || 'Background Uploader' || 'RNFS'
+    client,
     url,
     route,
     reqType,
     fieldName,
     headerToken,
-    uploadQueue,
+    currentUpload,
     uploadProgress,
     showHttpClientOptions,
     showHttpReqTypeOptions,
   } = props;
-  // Actions
+
+  // Redux - Actions
   const {
     setUsePicker,
     resetHTTPReducer,
@@ -29,15 +30,16 @@ export default function Form(props) {
     setHttpReqType,
     setHttpFieldName,
     setHttpHeaderToken,
-    resetUploadsReducer,
-    updateUploadQueue,
-    clearUploadQueue,
-    updateUploadQueueProgress,
+    resetUploadReducer,
+    setCurrentUpload,
+    setUploadProgress,
+    clearUpload,
     submitUpload,
     setShowHttpClientOptions,
     setShowHttpReqTypeOptions,
   } = props;
 
+  const styles = stylesWithProps(usePicker);
   return (
     <View style={styles.form_container}>
       <View style={[styles.row]}>
@@ -45,7 +47,7 @@ export default function Form(props) {
           label="File"
           label2="Image"
           value={usePicker}
-          onChange={() => setUsePicker(!usePicker)}
+          onChange={setUsePicker}
           fixedHeight={60}
         />
       </View>
@@ -135,7 +137,7 @@ export default function Form(props) {
           value={headerToken}
           onChange={setHttpHeaderToken}
           onBlur={null}
-          placeholder='Do not include: "Bearer"'
+          placeholder='Do not include "Bearer"'
           keyboardType="default"
           autoCorrect={false}
           autoCapitalize={false}
@@ -145,41 +147,57 @@ export default function Form(props) {
       </View>
 
       <View style={[styles.row, styles.mt_20]}>
-        <TouchableOpacity>
-          <Text>SUBMIT</Text>
+        <TouchableOpacity onPress={submitUpload} style={styles.upload_btn}>
+          <Text style={styles.upload_btn_txt}>SUBMIT</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  form_container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  row: {
-    flexDirection: 'row',
-    marginVertical: 10,
-  },
-  column: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  mt_20: {
-    marginTop: 20,
-  },
-  ml10: {
-    marginLeft: 10,
-  },
-  mr10: {
-    marginRight: 10,
-  },
-  dropdown_row: {
-    zIndex: 10,
-  },
-});
+const stylesWithProps = props => {
+  return StyleSheet.create({
+    form_container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      paddingHorizontal: 20,
+      paddingBottom: 40,
+    },
+    row: {
+      flexDirection: 'row',
+      marginVertical: 10,
+    },
+    column: {
+      flex: 1,
+      flexDirection: 'column',
+    },
+    mt_20: {
+      marginTop: 20,
+    },
+    ml10: {
+      marginLeft: 10,
+    },
+    mr10: {
+      marginRight: 10,
+    },
+    dropdown_row: {
+      zIndex: 10,
+    },
+    upload_btn: {
+      height: 40,
+      width: 180,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: props ? '#0D0' : '#00BFFF',
+      borderRadius: 20,
+    },
+    upload_btn_txt: {
+      fontWeight: '500',
+      letterSpacing: 1,
+      color: props ? '#002' : '#0B0',
+    },
+  });
+};

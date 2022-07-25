@@ -1,34 +1,28 @@
 import {
-  RESET_UPLOADS_REDUCER,
-  UPDATE_UPLOAD_QUEUE,
-  CLEAR_UPLOAD_QUEUE,
-  UPDATE_UPLOAD_QUEUE_PROGRESS,
+  RESET_UPLOAD_REDUCER,
+  SET_CURRENT_UPLOAD,
+  SET_UPLOAD_PROGRESS,
 } from '../actions/uploads';
 
 const initialState = {
-  uploadQueue: [],
-  uploadProgress: [],
+  currentUpload: null,
+  uploadProgress: 0,
 };
 
 export default function uploads(state = initialState, action) {
   switch (action.type) {
     // General
-    case RESET_UPLOADS_REDUCER:
+    case RESET_UPLOAD_REDUCER:
       return initialState;
 
     // Uploads
-    case UPDATE_UPLOAD_QUEUE:
+    case SET_CURRENT_UPLOAD:
       return {
         ...state,
-        uploadQueue: action.data,
+        currentUpload: action.data,
       };
-    case CLEAR_UPLOAD_QUEUE:
-      return {
-        ...state,
-        uploadQueue: [],
-        uploadProgress: [],
-      };
-    case UPDATE_UPLOAD_QUEUE_PROGRESS:
+
+    case SET_UPLOAD_PROGRESS:
       return {
         ...state,
         uploadProgress: action.data,

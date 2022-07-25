@@ -6,24 +6,50 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ImageBackground,
 } from 'react-native';
 
 export default function FileUpload(props) {
-  const {source, onPress, usePicker} = props;
+  const {source, onPress, useImagePicker, currentUpload, uploadProgress} =
+    props;
+
+  // Image Picker
+  // const {creationDate, cropRect, data, duration, exif, filename, height, localIdentifier, mime, modificationDate, path, size, sourceURL, width} = source;
+  //
+  // Document Picker
   // const {name, size, type, uri} = source;
+
   const styles = stylesWithProps();
+
+  let name, size, type, uri;
+  if (useImagePicker) {
+    name = source ? source.filename : null;
+    size = source ? source.size : null;
+    type = source ? source.mime : null;
+    uri = source ? source.sourceURL : null;
+  } else {
+    name = source ? source.name : null;
+    size = source ? source.size : null;
+    type = source ? source.type : null;
+    uri = source ? source.uri : null;
+  }
 
   return (
     <View style={styles.upload_container}>
       <TouchableOpacity
         onPress={onPress}
-        style={source && source.uri ? styles.input_file : styles.add_file_btn}>
-        {source && source.uri ? (
-          <Image
+        style={uri ? styles.input_file : styles.add_file_btn}>
+        {uri ? (
+          <ImageBackground
             style={styles.cover_img}
-            source={source ? {uri: source.uri} : null}
-            defaultSource={require('../../assets/images/placeholder.jpg')}
-          />
+            source={uri ? {uri: uri} : null}
+            defaultSource={require('../../assets/images/placeholder.jpg')}>
+            {useImagePicker ? (
+              <Text style={{fontSize: 23, color: 'pink'}}>{name}</Text>
+            ) : (
+              <Text style={{fontSize: 23, color: 'pink'}}>{name}</Text>
+            )}
+          </ImageBackground>
         ) : (
           <>
             <Text
@@ -33,7 +59,7 @@ export default function FileUpload(props) {
               ]}>{`[ SELECT FILE ]`}</Text>
 
             <Text style={[styles.title_txt, styles.btn_txt]}>
-              {usePicker ? 'Image Picker' : 'File Picker'}
+              {useImagePicker ? 'Image Picker' : 'File Picker'}
             </Text>
           </>
         )}
@@ -54,14 +80,6 @@ const stylesWithProps = props => {
       alignItems: 'center',
     },
     title_txt: {},
-    cover_img: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: winSize.width - 20,
-      width: winSize.width - 20,
-      overflow: 'hidden',
-    },
     input_file: {
       height: winSize.width - 20,
       width: winSize.width - 20,
@@ -79,6 +97,14 @@ const stylesWithProps = props => {
       overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    cover_img: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: winSize.width - 22,
+      width: winSize.width - 22,
+      overflow: 'hidden',
     },
     btn_txt: {
       letterSpacing: 1,

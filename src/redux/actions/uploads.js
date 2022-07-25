@@ -1,34 +1,30 @@
 // General
-export const RESET_UPLOADS_REDUCER = 'RESET_UPLOADS_REDUCER';
+export const RESET_UPLOAD_REDUCER = 'RESET_UPLOAD_REDUCER';
 
 // Uploads
-export const UPDATE_UPLOAD_QUEUE = 'UPDATE_UPLOAD_QUEUE';
-export const CLEAR_UPLOAD_QUEUE = 'CLEAR_UPLOAD_QUEUE';
-export const UPDATE_UPLOAD_QUEUE_PROGRESS = 'UPDATE_UPLOAD_QUEUE_PROGRESS';
+export const SET_CURRENT_UPLOAD = 'SET_CURRENT_UPLOAD';
+export const SET_UPLOAD_PROGRESS = 'SET_UPLOAD_PROGRESS';
 
 // General
-export function resetUploadsReducer() {
+
+export function resetUploadReducer() {
   return {
-    type: RESET_UPLOADS_REDUCER,
+    type: RESET_UPLOAD_REDUCER,
   };
 }
 
 // Uploads
 
-export function updateUploadQueue(data) {
+export function setCurrentUpload(data) {
   return {
-    type: UPDATE_UPLOAD_QUEUE,
+    type: SET_CURRENT_UPLOAD,
     data: data,
   };
 }
-export function clearUploadQueue() {
+
+export function setUploadProgress(data) {
   return {
-    type: CLEAR_UPLOAD_QUEUE,
-  };
-}
-export function updateUploadQueueProgress(data) {
-  return {
-    type: UPDATE_UPLOAD_QUEUE_PROGRESS,
+    type: SET_UPLOAD_PROGRESS,
     data: data,
   };
 }
