@@ -1,8 +1,8 @@
 import React from 'react';
-import {StyleSheet, View, Image, Text} from 'react-native';
+import {StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
 
 export default function Loader(props) {
-  const {progress} = props;
+  const {progress, onPress} = props;
   return (
     <View style={styles.loading_container}>
       <Text style={styles.loading_txt}>UPLOADING</Text>
@@ -15,6 +15,12 @@ export default function Loader(props) {
         <View style={styles.loading_percentage}>
           <Text style={styles.loading_percentage_txt}>{progress}</Text>
         </View>
+      </View>
+
+      <View style={styles.cancel_container}>
+        <TouchableOpacity style={styles.cancel_btn} onPress={onPress}>
+          <Text style={styles.cancel_txt}>CANCEL UPLOAD</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -57,5 +63,26 @@ const styles = StyleSheet.create({
     fontSize: 21,
     fontWeight: '500',
     color: '#FFF',
+  },
+  cancel_container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 100,
+  },
+  cancel_btn: {
+    height: 40,
+    width: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EEE',
+    borderWidth: 2,
+    borderColor: '#DDD',
+    borderRadius: 20,
+  },
+  cancel_txt: {
+    color: '#001',
+    fontWeight: '500',
+    letterSpacing: 1,
   },
 });

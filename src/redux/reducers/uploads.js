@@ -1,11 +1,13 @@
 import {
   RESET_UPLOAD_REDUCER,
   SET_CURRENT_UPLOAD,
+  SET_UPLOAD_ID,
   SET_UPLOAD_PROGRESS,
 } from '../actions/uploads';
 
 const initialState = {
   currentUpload: null,
+  uploadId: null,
   uploadProgress: 0,
 };
 
@@ -20,6 +22,12 @@ export default function uploads(state = initialState, action) {
       return {
         ...state,
         currentUpload: action.data,
+      };
+
+    case SET_UPLOAD_ID:
+      return {
+        ...state,
+        uploadId: action.data,
       };
 
     case SET_UPLOAD_PROGRESS:

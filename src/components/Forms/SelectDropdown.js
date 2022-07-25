@@ -120,6 +120,7 @@ const stylesWithProps = props => {
       marginBottom: 5,
     },
     title_txt: {
+      color: '#001',
       fontWeight: '500',
       letterSpacing: 1,
     },
@@ -160,6 +161,7 @@ const stylesWithProps = props => {
 
     placeholder_txt: {
       opacity: 0.5,
+      color: '#001',
     },
     select_txt: {
       color: '#001',

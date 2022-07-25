@@ -1,8 +1,11 @@
 // General
+
 export const RESET_UPLOAD_REDUCER = 'RESET_UPLOAD_REDUCER';
 
 // Uploads
+
 export const SET_CURRENT_UPLOAD = 'SET_CURRENT_UPLOAD';
+export const SET_UPLOAD_ID = 'SET_UPLOAD_ID';
 export const SET_UPLOAD_PROGRESS = 'SET_UPLOAD_PROGRESS';
 
 // General
@@ -18,6 +21,13 @@ export function resetUploadReducer() {
 export function setCurrentUpload(data) {
   return {
     type: SET_CURRENT_UPLOAD,
+    data: data,
+  };
+}
+
+export function setUploadId(data) {
+  return {
+    type: SET_UPLOAD_ID,
     data: data,
   };
 }

@@ -7,21 +7,6 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import {connect} from 'react-redux';
-import {
-  resetHTTPReducer,
-  setHttpClient,
-  setHttpUrl,
-  setHttpRoute,
-  setHttpReqType,
-  setHttpFieldName,
-  setHttpHeaderToken,
-} from './redux/actions/http';
-import {
-  resetUploadReducer,
-  setCurrentUpload,
-  setUploadProgress,
-} from './redux/actions/uploads';
 import Orientation from 'react-native-orientation-locker';
 import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -37,17 +22,23 @@ import FileUpload from './components/Forms/FileUpload';
 import Form from './components/Form';
 import Loader from './components/Loader/Loader';
 
-function App(props) {
+export default function Main(props) {
   // Redux
-  const {client, url, route, reqType, headerToken, fieldName, uploadProgress} =
-    props;
-  // Actions
   const {
-    // resetHTTPReducer, setHttpClient, setHttpUrl, setHttpRoute, setHttpReqType, setHttpFieldName, setHttpHeaderToken
-    resetUploadReducer,
-    setCurrentUpload,
-    setUploadProgress,
+    client,
+    url,
+    route,
+    reqType,
+    headerToken,
+    fieldName,
+    uploadId,
+    uploadProgress,
   } = props;
+  // Actions
+  const {resetUploadReducer, setCurrentUpload, setUploadProgress, setUploadId} =
+    props;
+
+  console.log('PROPS', props);
 
   useEffect(() => {
     Orientation.lockToPortrait();
@@ -191,6 +182,7 @@ function App(props) {
       // console.log('Upload Done', res);
       setTimeout(() => {
         setUploadProgress(0);
+        setUploadId(null);
         setLoading(false);
       }, 1000);
       return res;
@@ -198,6 +190,7 @@ function App(props) {
       console.log('Upload Media Caught', e);
       setTimeout(() => {
         setUploadProgress(0);
+        setUploadId(null);
         setLoading(false);
       }, 1000);
     }
@@ -210,6 +203,7 @@ function App(props) {
       http,
       headers,
       payload,
+      setUploadId,
       setUploadProgress,
     );
 
@@ -255,6 +249,30 @@ function App(props) {
     return res;
   };
 
+  const confirmCancelUpload = async () => {
+    const options = [
+      {text: 'Exit', style: 'default', onPress: () => null},
+      {
+        text: 'Cancel Upload',
+        style: 'destructive',
+        onPress: cancelUpload,
+      },
+    ];
+
+    Alert.alert(
+      `Confirm Cancel`,
+      `Are you sure you want to cancel the upload?`,
+      options,
+    );
+  };
+
+  const cancelUpload = async () => {
+    await UploadsHTTP.cancelUpload(uploadId, client.trim());
+    setUploadProgress(0);
+    setUploadId(null);
+    setLoading(false);
+  };
+
   return (
     <SafeAreaView style={styles.main}>
       <StatusBar barStyle={'dark-content'} />
@@ -291,7 +309,9 @@ function App(props) {
         />
       </ScrollView>
 
-      {loading ? <Loader progress={uploadProgress} /> : null}
+      {loading ? (
+        <Loader progress={uploadProgress} onPress={confirmCancelUpload} />
+      ) : null}
 
       <Toast config={ToastConfig} />
     </SafeAreaView>
@@ -308,35 +328,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
 });
-
-const mapStateToProps = state => ({
-  // HTTP - Form Values
-  client: state.http.client,
-  url: state.http.url,
-  route: state.http.route,
-  reqType: state.http.reqType,
-  fieldName: state.http.fieldName,
-  headerToken: state.http.headerToken,
-  // Uploads
-  currentUpload: state.uploads.currentUpload,
-  uploadProgress: state.uploads.uploadProgress,
-});
-
-function mapDispatchToProps(dispatch) {
-  return {
-    // HTTP - Form Updates
-    resetHTTPReducer: () => dispatch(resetHTTPReducer()),
-    setHttpClient: data => dispatch(setHttpClient(data)),
-    setHttpUrl: data => dispatch(setHttpUrl(data)),
-    setHttpRoute: data => dispatch(setHttpRoute(data)),
-    setHttpReqType: data => dispatch(setHttpReqType(data)),
-    setHttpFieldName: data => dispatch(setHttpFieldName(data)),
-    setHttpHeaderToken: data => dispatch(setHttpHeaderToken(data)),
-    // Uploads
-    resetUploadReducer: () => dispatch(resetUploadReducer()),
-    setCurrentUpload: data => dispatch(setCurrentUpload(data)),
-    setUploadProgress: data => dispatch(setUploadProgress(data)),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
