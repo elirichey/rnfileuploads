@@ -5,18 +5,18 @@ import RNFS from 'react-native-fs';
 const uploadFile = async (http, headers, payload, setPercentUploaded) => {
   switch (http.client) {
     case 'Axios':
-      return axiosUpload(http, headers, payload, setPercentUploaded);
-    case 'Background':
-      return backgroundUpload(http, headers, payload, setPercentUploaded);
+      return await axiosUpload(http, headers, payload, setPercentUploaded);
+    case 'Background Uploader':
+      return await backgroundUpload(http, headers, payload, setPercentUploaded);
     case 'RNFS':
-      return rnfsUpload(http, headers, payload, setPercentUploaded);
+      return await rnfsUpload(http, headers, payload, setPercentUploaded);
     default:
-      return backgroundUpload(http, headers, payload, setPercentUploaded);
+      return await backgroundUpload(http, headers, payload, setPercentUploaded);
   }
 };
 
 // React Native Background Uploader
-const backgroundUpload = (http, headers, payload, setPercentUploaded) => {
+const backgroundUpload = async (http, headers, payload, setPercentUploaded) => {
   const controller = new AbortController();
 
   // Prop Values
@@ -49,32 +49,34 @@ const backgroundUpload = (http, headers, payload, setPercentUploaded) => {
     },
   };
 
-  Upload.startUpload(options)
-    .then(uploadId => {
-      console.log('Background Upload: Starting');
-      Upload.addListener('progress', uploadId, res => {
-        console.log(`Background Upload: Progress - ${res.progress}%`);
-        setPercentUploaded({payload, progress: res.progress});
-      });
-      Upload.addListener('error', uploadId, res => {
-        console.log(`Background Upload: Error - ${res.error}`);
+  return await new Promise(resolve => {
+    Upload.startUpload(options)
+      .then(uploadId => {
+        console.log('Background Upload: Starting');
+        Upload.addListener('progress', uploadId, res => {
+          console.log(`Background Upload: Progress - ${res.progress}%`);
+          setPercentUploaded({payload, progress: res.progress});
+        });
+        Upload.addListener('error', uploadId, res => {
+          console.log(`Background Upload: Error - ${res.error}`);
+          controller.abort();
+          return resolve(res);
+        });
+        Upload.addListener('cancelled', uploadId, res => {
+          console.log(`Background Upload: Cancelled - ${uploadId}`, res);
+          return resolve(res);
+        });
+        Upload.addListener('completed', uploadId, res => {
+          console.log(`Background Upload: Completed - ${uploadId}`, res);
+          return resolve(res);
+        });
+      })
+      .catch(err => {
+        console.log('Background Upload: Caught Error -', err);
         controller.abort();
-        return res;
+        return resolve(err);
       });
-      Upload.addListener('cancelled', uploadId, res => {
-        console.log('Background Upload: Cancelled -', res);
-        return res;
-      });
-      Upload.addListener('completed', uploadId, res => {
-        console.log(`Background Upload: Completed - ${res.id}`);
-        return res;
-      });
-    })
-    .catch(err => {
-      console.log('Background Upload: Caught Error -', err);
-      controller.abort();
-      return err;
-    });
+  });
 };
 
 const rnfsUpload = (http, headers, payload, setPercentUploaded) => {
@@ -137,7 +139,7 @@ const rnfsUpload = (http, headers, payload, setPercentUploaded) => {
     });
 };
 
-const axiosUpload = (http, headers, payload, setPercentUploaded) => {
+const axiosUpload = async (http, headers, payload, setPercentUploaded) => {
   const controller = new AbortController();
 
   // Prop Values
@@ -170,7 +172,7 @@ const axiosUpload = (http, headers, payload, setPercentUploaded) => {
 
   // field: 'file', // this must match FileInterceptor api value in uploader.controller.ts
 
-  axios({
+  return await axios({
     url: routePath,
     method: reqType,
     headers: headerObj,
@@ -183,9 +185,11 @@ const axiosUpload = (http, headers, payload, setPercentUploaded) => {
     },
   })
     .then(res => {
-      if (res.status === 201) {
-        console.log('Axios Upload: Success -', res.data.data);
-        return res.data;
+      if (res.status) {
+        const {status, data} = res;
+        console.log('Axios Upload: Success - Status', status);
+        console.log('Axios Upload: Success - Data', data);
+        return {status, data};
       } else {
         console.log('Axios Upload: Error -', res);
       }

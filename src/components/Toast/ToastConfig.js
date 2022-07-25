@@ -2,28 +2,15 @@ import React from 'react';
 import {StyleSheet, View, Text, Platform} from 'react-native';
 
 const ToastConfig = {
-  created: ({text1, text2, props}) => {
+  uploaded: ({text1, text2, props}) => {
     const styles = stylesWithProps();
     return (
-      <View style={[styles.custom_container, styles.created_border]}>
+      <View style={[styles.custom_container, styles.uploaded_border]}>
         {text1 ? (
           <Text style={[styles.title_txt, styles.theme_txt]}>{text1}</Text>
         ) : null}
         {text2 ? (
           <Text style={styles.body_txt}>{text2.toUpperCase()}</Text>
-        ) : null}
-      </View>
-    );
-  },
-  updated: ({text1, text2, props}) => {
-    const styles = stylesWithProps();
-    return (
-      <View style={[styles.custom_container, styles.updated_border]}>
-        {text2 && text2.code ? (
-          <Text style={[styles.title_txt, styles.theme_txt]}>{text2.code}</Text>
-        ) : null}
-        {text2 && text2.message ? (
-          <Text style={styles.body_txt}>{text2.message.toUpperCase()}</Text>
         ) : null}
       </View>
     );
@@ -79,11 +66,7 @@ const stylesWithProps = props => {
       marginBottom: 5,
     },
 
-    created_border: {
-      borderColor: 'green',
-      borderWidth: 1,
-    },
-    updated_border: {
+    uploaded_border: {
       borderColor: 'green',
       borderWidth: 1,
     },
@@ -104,27 +87,19 @@ const stylesWithProps = props => {
 
 export default ToastConfig;
 
-export const toastCreated = text2 => {
+export const toastUploadComplete = text2 => {
   return {
-    type: 'created',
-    text1: 'CREATED',
+    type: 'uploaded',
+    text1: 'UPLOAD COMPLETE',
     text2,
-    visibilityTime: 2000,
-  };
-};
-export const toastUpdated = text2 => {
-  return {
-    type: 'updated',
-    text1: 'UPDATED',
-    text2,
-    visibilityTime: 2000,
+    visibilityTime: 3000,
   };
 };
 export const toastError = text2 => {
   return {
     type: 'error',
-    text1: 'ERROR',
+    text1: 'UPLOAD ERROR',
     text2,
-    visibilityTime: 2000,
+    visibilityTime: 3000,
   };
 };

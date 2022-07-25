@@ -18,6 +18,7 @@ export default function Form(props) {
     uploadProgress,
     showHttpClientOptions,
     showHttpReqTypeOptions,
+    submitDisabled,
   } = props;
 
   // Redux - Actions
@@ -61,7 +62,7 @@ export default function Form(props) {
           placeholder="http://localhost:3000"
           keyboardType="url"
           autoCorrect={false}
-          autoCapitalize={false}
+          autoCapitalize={'none'}
           returnKeyType="next"
           editable={true}
         />
@@ -76,7 +77,7 @@ export default function Form(props) {
           placeholder="/upload"
           keyboardType="default"
           autoCorrect={false}
-          autoCapitalize={false}
+          autoCapitalize={'none'}
           returnKeyType="next"
           editable={true}
         />
@@ -125,7 +126,7 @@ export default function Form(props) {
           placeholder="file"
           keyboardType="default"
           autoCorrect={false}
-          autoCapitalize={false}
+          autoCapitalize={'none'}
           returnKeyType="next"
           editable={true}
         />
@@ -148,8 +149,20 @@ export default function Form(props) {
       </View>
 
       <View style={[styles.row, styles.mt_20]}>
-        <TouchableOpacity onPress={submitUpload} style={styles.upload_btn}>
-          <Text style={styles.upload_btn_txt}>SUBMIT</Text>
+        <TouchableOpacity
+          onPress={submitUpload}
+          style={
+            submitDisabled ? styles.upload_btn_disabled : styles.upload_btn
+          }
+          disabled={submitDisabled}>
+          <Text
+            style={
+              submitDisabled
+                ? styles.upload_btn_txt_disabled
+                : styles.upload_btn_txt
+            }>
+            SUBMIT
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -174,18 +187,10 @@ const stylesWithProps = props => {
       flex: 1,
       flexDirection: 'column',
     },
-    mt_20: {
-      marginTop: 20,
-    },
-    ml10: {
-      marginLeft: 10,
-    },
-    mr10: {
-      marginRight: 10,
-    },
-    dropdown_row: {
-      zIndex: 10,
-    },
+    mt_20: {marginTop: 20},
+    ml10: {marginLeft: 10},
+    mr10: {marginRight: 10},
+    dropdown_row: {zIndex: 10},
     upload_btn: {
       height: 40,
       width: 180,
@@ -195,10 +200,24 @@ const stylesWithProps = props => {
       borderColor: props ? '#0D0' : '#00BFFF',
       borderRadius: 20,
     },
+    upload_btn_disabled: {
+      height: 40,
+      width: 180,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: '#DDD',
+      borderRadius: 20,
+    },
     upload_btn_txt: {
       fontWeight: '500',
       letterSpacing: 1,
       color: props ? '#002' : '#0B0',
+    },
+    upload_btn_txt_disabled: {
+      fontWeight: '500',
+      letterSpacing: 1,
+      color: '#AAA',
     },
   });
 };

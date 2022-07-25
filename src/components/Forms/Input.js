@@ -63,6 +63,7 @@ const stylesWithProps = props => {
       flexDirection: 'row',
     },
     title_txt: {
+      color: '#001',
       fontWeight: '500',
       letterSpacing: 1,
     },
@@ -71,6 +72,7 @@ const stylesWithProps = props => {
     },
     txt_input: {
       height: 40,
+      color: '#001',
       overflow: 'hidden',
     },
   });

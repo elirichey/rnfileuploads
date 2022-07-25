@@ -51,6 +51,7 @@ const stylesWithProps = props => {
       paddingHorizontal: 10,
     },
     title_txt: {
+      color: '#001',
       fontWeight: '500',
       letterSpacing: 1,
     },

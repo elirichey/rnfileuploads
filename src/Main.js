@@ -5,6 +5,7 @@ import {
   StatusBar,
   StyleSheet,
   Alert,
+  Platform,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {
@@ -26,7 +27,7 @@ import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import ToastConfig, {
-  toastCreated,
+  toastUploadComplete,
   toastError,
 } from './components/Toast/ToastConfig';
 import UploadsHTTP from './utilities/http/uploads';
@@ -118,6 +119,8 @@ function App(props) {
   const [showHttpReqTypeOptions, setShowHttpReqTypeOptions] = useState(false);
 
   const submitUpload = async () => {
+    const isIos = Platform.OS === 'ios';
+
     // Image Picker Response:
     // - iOS: { creationDate, cropRect, data, duration, exif, filename,
     //          height, localIdentifier, mime, modificationDate, path,
@@ -131,17 +134,33 @@ function App(props) {
 
     // Validate the file payload
     let fileErrors = [];
+    console.log('selectedFileselectedFileselectedFile', selectedFile);
+
     let payload = {};
     if (useImagePicker) {
-      selectedFile
-        ? (payload.name = selectedFile.filename)
-        : fileErrors.push('name');
-      selectedFile
-        ? (payload.uri = selectedFile.sourceURL)
-        : fileErrors.push('uri');
-      selectedFile
-        ? (payload.type = selectedFile.mime)
-        : fileErrors.push('type');
+      if (isIos) {
+        // iOS Payload
+        selectedFile
+          ? (payload.name = selectedFile.filename)
+          : fileErrors.push('name');
+        selectedFile
+          ? (payload.uri = selectedFile.sourceURL)
+          : fileErrors.push('uri');
+        selectedFile
+          ? (payload.type = selectedFile.mime)
+          : fileErrors.push('type');
+      } else {
+        // Android Payload
+        const fileName = selectedFile.path.replace(/^.*[\\\/]/, '');
+
+        const filePath = selectedFile.path.split('file://')[1];
+
+        selectedFile ? (payload.name = fileName) : fileErrors.push('name');
+        selectedFile ? (payload.uri = filePath) : fileErrors.push('uri');
+        selectedFile
+          ? (payload.type = selectedFile.mime)
+          : fileErrors.push('type');
+      }
     } else {
       selectedFile
         ? (payload.name = selectedFile.name)
@@ -156,7 +175,7 @@ function App(props) {
     }
 
     // Validate the HTTP credentials
-    //
+    // submitDisabled
     //
     //
     //
@@ -189,21 +208,32 @@ function App(props) {
     const http = {client, url, route, reqType, field: fieldName};
     const headers = {token: headerToken};
 
-    try {
-      const res = await UploadsHTTP.uploadFile(
-        http,
-        headers,
-        payload,
-        setUploadProgress,
-      );
+    const res = await UploadsHTTP.uploadFile(
+      http,
+      headers,
+      payload,
+      setUploadProgress,
+    );
 
-      console.log('Main.js UploadsHTTP.uploadFile - Response: ', res);
-
-      const code = res.responseCode;
-      // console.log('Response Code: ', code);
-
+    if (res) {
+      if (client === 'Background Uploader') {
+        const code = res.responseCode;
+        if (code === 200 || code === 201 || code === 202) {
+          Toast.show(toastUploadComplete('Background Uploader'));
+          return res;
+        } else {
+          const {data} = res.response;
+          Toast.show(toastError(data));
+          console.log('Upload Error: ', res);
+          return res;
+        }
+      }
+    }
+    if (client === 'Axios') {
+      console.log('AxiosAxiosAxiosAxios', res.status);
+      const code = res.status;
       if (code === 200 || code === 201 || code === 202) {
-        Toast.show(toastCreated('Upload'));
+        Toast.show(toastUploadComplete('Axios'));
         return res;
       } else {
         const {data} = res.response;
@@ -211,11 +241,19 @@ function App(props) {
         console.log('Upload Error: ', res);
         return res;
       }
-    } catch (e) {
-      const {data} = e.response;
-      Toast.show(toastError(data));
-      console.log('Upload Error Caught: ', data);
-      return e;
+    }
+    if (client === 'RNFS') {
+      console.log('Client: RNFS', res);
+      /* const code = res.status;
+      if (code === 200 || code === 201 || code === 202) {
+        Toast.show(toastUploadComplete('Axios'));
+        return res;
+      } else {
+        const {data} = res.response;
+        Toast.show(toastError(data));
+        console.log('Upload Error: ', res);
+        return res;
+      } */
     }
   };
 
@@ -250,6 +288,7 @@ function App(props) {
             setShowHttpReqTypeOptions(bool);
             if (showHttpClientOptions) setShowHttpClientOptions(false);
           }}
+          submitDisabled={!selectedFile}
         />
       </ScrollView>
 

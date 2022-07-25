@@ -7,6 +7,7 @@ import {
   Image,
   Dimensions,
   ImageBackground,
+  Platform,
 } from 'react-native';
 
 export default function FileUpload(props) {
@@ -20,13 +21,14 @@ export default function FileUpload(props) {
   // const {name, size, type, uri} = source;
 
   const styles = stylesWithProps();
+  const isIos = Platform.OS === 'ios';
 
   let name, size, type, uri;
   if (useImagePicker) {
     name = source ? source.filename : null;
     size = source ? source.size : null;
     type = source ? source.mime : null;
-    uri = source ? source.sourceURL : null;
+    uri = source ? (isIos ? source.sourceURL : source.path) : null;
   } else {
     name = source ? source.name : null;
     size = source ? source.size : null;
@@ -85,7 +87,9 @@ const stylesWithProps = props => {
       justifyContent: 'center',
       alignItems: 'center',
     },
-    title_txt: {},
+    title_txt: {
+      color: '#001',
+    },
     input_file: {
       height: winSize.width - 20,
       width: winSize.width - 20,
@@ -93,9 +97,6 @@ const stylesWithProps = props => {
       backgroundColor: '#FFF',
       borderWidth: 1,
       borderColor: '#DDD',
-      // overflow: 'hidden',
-      // alignItems: 'center',
-      // justifyContent: 'center',
     },
     add_file_btn: {
       height: winSize.width - 30,
@@ -110,11 +111,6 @@ const stylesWithProps = props => {
       flex: 1,
       maxWidth: winSize.width - 22,
       backgroundColor: '#EEE',
-      // alignItems: 'center',
-      // justifyContent: 'center',
-      // height: winSize.width - 22,
-      // width: winSize.width - 22,
-      // overflow: 'hidden',
     },
     file_overview_container: {
       width: '100%',

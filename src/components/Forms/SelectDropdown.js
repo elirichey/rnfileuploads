@@ -161,7 +161,9 @@ const stylesWithProps = props => {
     placeholder_txt: {
       opacity: 0.5,
     },
-    select_txt: {},
+    select_txt: {
+      color: '#001',
+    },
     txt_white: {
       color: '#FFF',
     },
@@ -188,6 +190,8 @@ const stylesWithProps = props => {
       right: 10,
       bottom: 10,
     },
-    indicator_txt: {},
+    indicator_txt: {
+      color: '#001',
+    },
   });
 };
