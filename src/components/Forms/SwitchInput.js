@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, View, Text, Switch} from 'react-native';
 
 export default function SwitchInput(props) {
-  const {label, label2, value, onChange, fixedHeight} = props;
+  const {label, label2, value, onChange, fixedHeight, editable} = props;
   const styles = stylesWithProps();
 
   let hasSetheight = {};
@@ -23,6 +23,7 @@ export default function SwitchInput(props) {
         onValueChange={onChange}
         style={{transform: [{scaleX: 0.75}, {scaleY: 0.75}]}}
         value={value}
+        disabled={!editable}
       />
 
       {label2 ? (

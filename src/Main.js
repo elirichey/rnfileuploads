@@ -53,6 +53,7 @@ function App(props) {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [useImagePicker, setUseImagePicker] = useState(true);
+  // const [isEditing, setIsEditing] = useState(false);
 
   const openPicker = async () => {
     if (useImagePicker) {
@@ -118,6 +119,7 @@ function App(props) {
   const [showHttpClientOptions, setShowHttpClientOptions] = useState(false);
   const [showHttpReqTypeOptions, setShowHttpReqTypeOptions] = useState(false);
 
+  const [loading, setLoading] = useState(false);
   const submitUpload = async () => {
     const isIos = Platform.OS === 'ios';
 
@@ -182,6 +184,7 @@ function App(props) {
     //
     // Then...
 
+    setLoading(true);
     const uploadItemId = new Date().getTime();
     const uploadItem = {
       id: uploadItemId,
@@ -194,12 +197,14 @@ function App(props) {
     try {
       const res = await uploadFile(payload);
       setUploadProgress(0);
+      setLoading(false);
       // if successful...
       // setCurrentUpload(null)
       return res;
     } catch (e) {
       console.log('Upload Media Caught', e);
       setUploadProgress(0);
+      setLoading(false);
       return e;
     }
   };
@@ -255,6 +260,7 @@ function App(props) {
         return res;
       } */
     }
+    return res;
   };
 
   return (
@@ -288,7 +294,8 @@ function App(props) {
             setShowHttpReqTypeOptions(bool);
             if (showHttpClientOptions) setShowHttpClientOptions(false);
           }}
-          submitDisabled={!selectedFile}
+          loading={loading}
+          submitDisabled={!selectedFile || loading}
         />
       </ScrollView>
 

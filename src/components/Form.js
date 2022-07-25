@@ -19,6 +19,7 @@ export default function Form(props) {
     showHttpClientOptions,
     showHttpReqTypeOptions,
     submitDisabled,
+    loading,
   } = props;
 
   // Redux - Actions
@@ -50,6 +51,7 @@ export default function Form(props) {
           value={usePicker}
           onChange={setUsePicker}
           fixedHeight={60}
+          editable={!loading}
         />
       </View>
 
@@ -64,7 +66,7 @@ export default function Form(props) {
           autoCorrect={false}
           autoCapitalize={'none'}
           returnKeyType="next"
-          editable={true}
+          editable={!loading}
         />
       </View>
 
@@ -79,7 +81,7 @@ export default function Form(props) {
           autoCorrect={false}
           autoCapitalize={'none'}
           returnKeyType="next"
-          editable={true}
+          editable={!loading}
         />
       </View>
 
@@ -92,10 +94,10 @@ export default function Form(props) {
               onChange={setHttpReqType}
               placeholder="( SELECT )"
               options={['PUT', 'POST']}
-              editable={true}
               showOptions={showHttpReqTypeOptions}
               setShowOptions={setShowHttpReqTypeOptions}
               theme={usePicker}
+              editable={!loading}
             />
           </View>
         </View>
@@ -108,10 +110,10 @@ export default function Form(props) {
               onChange={setHttpClient}
               placeholder="( SELECT )"
               options={['Axios', 'Background Uploader', 'RNFS']}
-              editable={true}
               showOptions={showHttpClientOptions}
               setShowOptions={setShowHttpClientOptions}
               theme={usePicker}
+              editable={!loading}
             />
           </View>
         </View>
@@ -128,7 +130,7 @@ export default function Form(props) {
           autoCorrect={false}
           autoCapitalize={'none'}
           returnKeyType="next"
-          editable={true}
+          editable={!loading}
         />
       </View>
 
@@ -144,7 +146,7 @@ export default function Form(props) {
           autoCapitalize={false}
           returnKeyType="next"
           multiline={true}
-          editable={true}
+          editable={!loading}
         />
       </View>
 
