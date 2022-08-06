@@ -64,7 +64,7 @@ export default function Form(props) {
           placeholder="http://localhost:3000"
           keyboardType="url"
           autoCorrect={false}
-          autoCapitalize={'none'}
+          autoCapitalize="none"
           returnKeyType="next"
           editable={!loading}
         />
@@ -79,7 +79,7 @@ export default function Form(props) {
           placeholder="/upload"
           keyboardType="default"
           autoCorrect={false}
-          autoCapitalize={'none'}
+          autoCapitalize="none"
           returnKeyType="next"
           editable={!loading}
         />
@@ -128,7 +128,7 @@ export default function Form(props) {
           placeholder="file"
           keyboardType="default"
           autoCorrect={false}
-          autoCapitalize={'none'}
+          autoCapitalize="none"
           returnKeyType="next"
           editable={!loading}
         />
@@ -144,7 +144,7 @@ export default function Form(props) {
           keyboardType="default"
           autoCorrect={false}
           autoCapitalize={false}
-          returnKeyType="next"
+          returnKeyType="done"
           multiline={true}
           editable={!loading}
         />
