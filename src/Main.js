@@ -38,8 +38,6 @@ export default function Main(props) {
   const {resetUploadReducer, setCurrentUpload, setUploadProgress, setUploadId} =
     props;
 
-  console.log('PROPS', props);
-
   useEffect(() => {
     Orientation.lockToPortrait();
     return () => null;
